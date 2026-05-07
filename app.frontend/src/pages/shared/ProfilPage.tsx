@@ -1,32 +1,31 @@
 import { Bell, Moon, ShieldCheck, UserRound } from 'lucide-react'
 import { PageHeader, SectionCard } from '../../components/ui'
 import { useAppData } from '../../contexts/AppDataContext'
-import { currentUser } from '../../data/mock'
 
 const ProfilPage = () => {
-  const { currentPatient, role } = useAppData()
-  const displayName = role === 'pacient' ? currentPatient.name : currentUser.name
-  const displayEmail = role === 'pacient' ? `${currentPatient.id.toLowerCase()}@pacient.vitalsync.ro` : currentUser.email
-  const displayMeta = role === 'pacient' ? currentPatient.diagnosis : currentUser.department
+  const { currentPatient, currentUser, role } = useAppData()
+  const displayName = role === 'pacient' ? currentPatient?.name : currentUser?.name
+  const displayEmail = role === 'pacient' ? currentUser?.email : currentUser?.email
+  const displayMeta = role === 'pacient' ? currentPatient?.diagnosis : currentUser?.specialty
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Profil si preferinte" description="Zona mock pentru profil, rol, notificari si preferinte UI persistate ulterior in BFF." />
+      <PageHeader title="Profil si preferinte" description="Profil incarcat din backend si preferinte UI persistate ulterior in BFF." />
 
       <div className="grid gap-5 lg:grid-cols-[0.8fr_1.2fr]">
         <SectionCard>
           <div className="flex items-center gap-4">
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#469ba8]/10 text-xl font-semibold text-[#2f7f8b]">
-              {displayName.split(' ').at(-1)?.charAt(0)}
+              {displayName?.split(' ').at(-1)?.charAt(0) ?? 'V'}
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-slate-950">{displayName}</h2>
-              <p className="text-sm text-slate-500">{displayEmail}</p>
+              <h2 className="text-lg font-semibold text-slate-950">{displayName ?? 'Utilizator VitalSync'}</h2>
+              <p className="text-sm text-slate-500">{displayEmail ?? 'Fara email incarcat'}</p>
             </div>
           </div>
           <div className="mt-6 space-y-3 text-sm">
             <p className="flex items-center gap-2 text-slate-600"><UserRound size={16} className="text-[#469ba8]" /> Rol: {role}</p>
-            <p className="flex items-center gap-2 text-slate-600"><ShieldCheck size={16} className="text-[#469ba8]" /> {role === 'pacient' ? 'Diagnostic' : 'Departament'}: {displayMeta}</p>
+            <p className="flex items-center gap-2 text-slate-600"><ShieldCheck size={16} className="text-[#469ba8]" /> {role === 'pacient' ? 'Diagnostic' : 'Specializare'}: {displayMeta ?? 'Nespecificat'}</p>
           </div>
         </SectionCard>
 

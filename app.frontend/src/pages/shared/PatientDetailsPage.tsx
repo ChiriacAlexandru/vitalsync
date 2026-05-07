@@ -2,12 +2,21 @@ import { Link, useParams } from 'react-router-dom'
 import { ArrowLeft, Bell, HeartPulse, Thermometer, Waves } from 'lucide-react'
 import { MiniChart, PageHeader, SectionCard, StatCard, StatusBadge } from '../../components/ui'
 import { useAppData } from '../../contexts/AppDataContext'
-import { ecgSeries, pulseSeries } from '../../data/mock'
 
 const PatientDetailsPage = () => {
   const { patientId } = useParams()
-  const { activeAlarms, patients } = useAppData()
-  const patient = patients.find((item) => item.id === patientId) ?? patients[0]
+  const { activeAlarms, chartPoints, patients } = useAppData()
+  const patient = patients.find((item) => item.id === patientId)
+
+  if (!patient) {
+    return (
+      <SectionCard>
+        <h1 className="text-lg font-semibold text-slate-950">Pacient negasit</h1>
+        <p className="mt-2 text-sm text-slate-500">Fisa ceruta nu exista in datele live incarcate din backend.</p>
+      </SectionCard>
+    )
+  }
+
   const patientAlarms = activeAlarms.filter((alarm) => alarm.patientId === patient.id || alarm.patient === patient.name)
 
   return (
@@ -35,11 +44,11 @@ const PatientDetailsPage = () => {
           <div className="mb-5 flex items-center justify-between">
             <div>
               <h2 className="text-lg font-semibold text-slate-950">ECG curatat</h2>
-              <p className="mt-1 text-sm text-slate-500">Serie mock dupa filtrarea anomaliilor in BFF.</p>
+              <p className="mt-1 text-sm text-slate-500">Serie live dupa filtrarea anomaliilor in BFF.</p>
             </div>
             <Waves size={22} className="text-[#469ba8]" />
           </div>
-          <MiniChart data={ecgSeries} />
+          <MiniChart data={chartPoints.map((point) => ({ label: point.label, value: point.ecg ?? point.value }))} />
         </SectionCard>
 
         <SectionCard>
@@ -50,7 +59,7 @@ const PatientDetailsPage = () => {
             </div>
             <HeartPulse size={22} className="text-[#469ba8]" />
           </div>
-          <MiniChart data={pulseSeries} color="#e11d48" />
+          <MiniChart data={chartPoints.map((point) => ({ label: point.label, value: point.pulse ?? point.value }))} color="#e11d48" />
         </SectionCard>
       </div>
 

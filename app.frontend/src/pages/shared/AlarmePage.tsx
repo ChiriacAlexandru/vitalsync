@@ -2,7 +2,7 @@ import type { FormEvent } from 'react'
 import { BellRing, CheckCheck, Link2, Plus, Radio } from 'lucide-react'
 import { PageHeader, SectionCard, StatusBadge } from '../../components/ui'
 import { useAppData } from '../../contexts/AppDataContext'
-import type { VitalStatus } from '../../data/mock'
+import type { VitalStatus } from '../../types/domain'
 
 const AlarmePage = () => {
   const { activeAlarms, addAlarm, alarms, matchAlarm, patients, resolveAlarm } = useAppData()

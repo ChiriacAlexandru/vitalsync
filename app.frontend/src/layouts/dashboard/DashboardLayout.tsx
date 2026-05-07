@@ -1,7 +1,6 @@
-import { NavLink, Outlet } from 'react-router-dom'
+import { Navigate, NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { Activity, Bell, ChartNoAxesCombined, LayoutDashboard, LogOut, Search, Settings, Stethoscope, UserRound } from 'lucide-react'
 import { useAppData } from '../../contexts/AppDataContext'
-import { currentUser } from '../../data/mock'
 
 const navItems = [
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, roles: ['medic', 'pacient'] },
@@ -13,9 +12,18 @@ const navItems = [
 ]
 
 const DashboardLayout = () => {
-  const { activeAlarms, currentPatient, patients, role, setCurrentPatientId, setRole } = useAppData()
+  const { activeAlarms, currentPatient, currentUser, isAuthenticated, isLoading, logout, patients, role, setCurrentPatientId, setRole } = useAppData()
+  const navigate = useNavigate()
   const visibleNavItems = navItems.filter((item) => item.roles.includes(role))
-  const patientAlarmsCount = activeAlarms.filter((alarm) => alarm.patientId === currentPatient.id || alarm.patient === currentPatient.name).length
+  const patientAlarmsCount = currentPatient
+    ? activeAlarms.filter((alarm) => alarm.patientId === currentPatient.id || alarm.patient === currentPatient.name).length
+    : 0
+  const displayName = role === 'pacient' ? currentPatient?.name : currentUser?.name
+  const displayMeta = role === 'pacient' ? currentPatient?.diagnosis : currentUser?.specialty
+
+  if (!isAuthenticated && !isLoading) {
+    return <Navigate to="/login" replace />
+  }
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 lg:flex">
@@ -53,11 +61,11 @@ const DashboardLayout = () => {
         <div className="hidden border-t border-slate-100 px-3 py-4 lg:block">
           <div className="flex items-center gap-3 rounded-lg px-3 py-2">
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#469ba8]/10 text-sm font-semibold text-[#2f7f8b]">
-              {currentUser.name.split(' ').at(-1)?.charAt(0)}
+              {displayName?.split(' ').at(-1)?.charAt(0) ?? 'V'}
             </div>
             <div className="min-w-0">
-              <p className="truncate text-sm font-semibold text-slate-800">{currentUser.name}</p>
-              <p className="truncate text-xs text-slate-500">{role === 'medic' ? currentUser.department : currentPatient.name}</p>
+              <p className="truncate text-sm font-semibold text-slate-800">{displayName ?? 'VitalSync'}</p>
+              <p className="truncate text-xs text-slate-500">{displayMeta ?? 'Date live'}</p>
             </div>
           </div>
         </div>
@@ -86,7 +94,7 @@ const DashboardLayout = () => {
               </div>
               {role === 'pacient' && (
                 <select
-                  value={currentPatient.id}
+                  value={currentPatient?.id ?? ''}
                   onChange={(event) => setCurrentPatientId(event.target.value)}
                   className="hidden rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 outline-none focus:border-[#469ba8] md:block"
                 >
@@ -105,15 +113,22 @@ const DashboardLayout = () => {
                 <UserRound size={16} />
                 {role}
               </div>
-              <NavLink to="/login" className="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50" aria-label="Iesire">
+              <button
+                onClick={() => {
+                  logout()
+                  navigate('/login')
+                }}
+                className="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                aria-label="Iesire"
+              >
                 <LogOut size={18} />
-              </NavLink>
+              </button>
             </div>
           </div>
           <div className="border-t border-slate-100 bg-[#469ba8]/5 px-4 py-2 text-xs text-[#2f7f8b] sm:px-6 lg:px-8">
             {role === 'medic'
-              ? `${activeAlarms.length} alarme active sincronizate prin BFF mock`
-              : `${patientAlarmsCount} alarme active pentru ${currentPatient.name}`}
+              ? `${activeAlarms.length} alarme active sincronizate prin BFF`
+              : `${patientAlarmsCount} alarme active pentru ${currentPatient?.name ?? 'pacient'}`}
           </div>
         </header>
 

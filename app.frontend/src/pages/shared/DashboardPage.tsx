@@ -2,15 +2,25 @@ import { Link } from 'react-router-dom'
 import { Activity, ArrowUpRight, Bell, HeartPulse, ShieldCheck, Thermometer, UsersRound } from 'lucide-react'
 import { MiniChart, PageHeader, PrimaryButton, SectionCard, StatCard, StatusBadge } from '../../components/ui'
 import { useAppData } from '../../contexts/AppDataContext'
-import { ecgSeries, pulseSeries } from '../../data/mock'
 
 const DashboardPage = () => {
-  const { activeAlarms, currentPatient, patients, role } = useAppData()
+  const { activeAlarms, chartPoints, currentPatient, patients, role } = useAppData()
   const critical = patients.filter((patient) => patient.status === 'critic').length
   const attention = patients.filter((patient) => patient.status === 'atentie').length
-  const patientAlarms = activeAlarms.filter((alarm) => alarm.patientId === currentPatient.id || alarm.patient === currentPatient.name)
+  const patientAlarms = currentPatient
+    ? activeAlarms.filter((alarm) => alarm.patientId === currentPatient.id || alarm.patient === currentPatient.name)
+    : []
 
   if (role === 'pacient') {
+    if (!currentPatient) {
+      return (
+        <SectionCard>
+          <h1 className="text-lg font-semibold text-slate-950">Nu exista fisa de pacient</h1>
+          <p className="mt-2 text-sm text-slate-500">Contul autentificat nu are inca date medicale asociate in MongoDB.</p>
+        </SectionCard>
+      )
+    }
+
     return (
       <div className="space-y-6">
         <PageHeader
@@ -31,11 +41,11 @@ const DashboardPage = () => {
             <div className="mb-5 flex items-center justify-between gap-3">
               <div>
                 <h2 className="text-lg font-semibold text-slate-950">Evolutie puls</h2>
-                <p className="mt-1 text-sm text-slate-500">Date mock afisate pentru contul de pacient.</p>
+                <p className="mt-1 text-sm text-slate-500">Date live afisate pentru contul de pacient.</p>
               </div>
               <HeartPulse className="text-rose-600" size={22} />
             </div>
-            <MiniChart data={pulseSeries} color="#e11d48" />
+            <MiniChart data={chartPoints.map((point) => ({ label: point.label, value: point.pulse ?? point.value }))} color="#e11d48" />
           </SectionCard>
 
           <SectionCard>
@@ -103,7 +113,7 @@ const DashboardPage = () => {
             </div>
             <Activity className="text-[#469ba8]" size={22} />
           </div>
-          <MiniChart data={ecgSeries} />
+          <MiniChart data={chartPoints.map((point) => ({ label: point.label, value: point.ecg ?? point.value }))} />
         </SectionCard>
 
         <SectionCard>

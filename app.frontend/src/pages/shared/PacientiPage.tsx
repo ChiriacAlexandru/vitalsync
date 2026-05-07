@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom'
 import { ArrowUpRight, Plus, Search } from 'lucide-react'
 import { PageHeader, SectionCard, StatusBadge } from '../../components/ui'
 import { useAppData } from '../../contexts/AppDataContext'
-import type { VitalStatus } from '../../data/mock'
 
 const PacientiPage = () => {
   const { addPatient, doctors, patients } = useAppData()
@@ -11,9 +10,6 @@ const PacientiPage = () => {
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const form = new FormData(event.currentTarget)
-    const pulse = Number(form.get('pulse'))
-    const oxygen = Number(form.get('oxygen'))
-    const temperature = Number(form.get('temperature'))
 
     addPatient({
       name: String(form.get('name')),
@@ -21,11 +17,6 @@ const PacientiPage = () => {
       diagnosis: String(form.get('diagnosis')),
       doctor: String(form.get('doctor')),
       room: String(form.get('room')),
-      pulse,
-      oxygen,
-      temperature,
-      bloodPressure: String(form.get('bloodPressure')),
-      status: String(form.get('status')) as VitalStatus,
     })
     event.currentTarget.reset()
   }
@@ -44,16 +35,7 @@ const PacientiPage = () => {
             {doctors.map((doctor) => <option key={doctor.id}>{doctor.name}</option>)}
           </select>
           <input required name="room" className="rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-[#469ba8]" placeholder="Salon / camera" />
-          <input required name="pulse" type="number" defaultValue="78" className="rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-[#469ba8]" placeholder="Puls" />
-          <input required name="oxygen" type="number" defaultValue="98" className="rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-[#469ba8]" placeholder="SpO2" />
-          <input required name="temperature" type="number" step="0.1" defaultValue="36.8" className="rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-[#469ba8]" placeholder="Temperatura" />
-          <input required name="bloodPressure" defaultValue="120/80" className="rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-[#469ba8]" placeholder="Tensiune" />
-          <select required name="status" className="rounded-lg border border-slate-200 px-3 py-2.5 text-sm outline-none focus:border-[#469ba8]">
-            <option value="stabil">Stabil</option>
-            <option value="atentie">Atentie</option>
-            <option value="critic">Critic</option>
-          </select>
-          <button className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#469ba8] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#397f8a] lg:col-span-2">
+          <button className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#469ba8] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#397f8a] lg:col-span-4">
             <Plus size={16} />
             Adauga pacient
           </button>

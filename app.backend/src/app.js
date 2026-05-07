@@ -6,9 +6,11 @@ import { env } from './config/env.js'
 
 const app = express()
 
+const allowedOrigins = env.frontendUrl.split(',').map((s) => s.trim())
+
 app.use(
   cors({
-    origin: env.frontendUrl,
+    origin: allowedOrigins,
   }),
 )
 app.use(morgan('dev'))
@@ -25,6 +27,13 @@ app.use('/api', routes)
 app.use((req, res) => {
   res.status(404).json({
     message: `Route not found: ${req.method} ${req.originalUrl}`,
+  })
+})
+
+app.use((error, _req, res, _next) => {
+  console.error(error)
+  res.status(error.status || 500).json({
+    message: error.message || 'Eroare server.',
   })
 })
 

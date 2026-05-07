@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { Activity, ArrowUpRight, CircleAlert, HeartPulse } from 'lucide-react'
-import type { ChartPoint, VitalStatus } from '../data/mock'
+import type { ChartPoint, VitalStatus } from '../types/domain'
 
 const statusStyles: Record<VitalStatus, string> = {
   stabil: 'bg-emerald-50 text-emerald-700 ring-emerald-200',
@@ -84,6 +84,14 @@ export const PrimaryButton = ({ children }: { children: ReactNode }) => (
 )
 
 export const MiniChart = ({ data, color = '#469ba8' }: { data: ChartPoint[]; color?: string }) => {
+  if (!data.length) {
+    return (
+      <div className="flex h-52 items-center justify-center rounded-lg border border-slate-100 bg-slate-50 text-sm text-slate-500">
+        Nu exista date live pentru grafic.
+      </div>
+    )
+  }
+
   const width = 520
   const height = 180
   const padding = 14
